@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEBULA PROTECT | Premium Code Obfuscator</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator@4.1.0/dist/index.browser.js"></script>
+
+    <style>
+        :root {
+            --bg: #05070a;
+            --surface: rgba(16, 20, 28, 0.8);
+            --accent: #00e5ff;
+            --primary: #2979ff;
+            --grad: linear-gradient(135deg, #2979ff 0%, #aa00ff 100%);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        #particles-js { position: fixed; width: 100%; height: 100%; z-index: 0; }
+
+        /* Main Container */
+        .app-wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 15px;
+            gap: 15px;
+        }
+
+        /* Responsive Navigation */
+        header {
+            background: var(--surface);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand h2 {
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: var(--grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions { display: flex; gap: 12px; align-items: center; }
+
+        /* Workspace Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .glass-card {
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 300px;
+        }
+
+        .card-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        textarea {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            padding: 20px;
+            color: #d1d5db;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            resize: none;
+            outline: none;
+            min-height: 250px;
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .options-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-dim);
+            cursor: pointer;
+        }
+
+        .check-item input { accent-color: var(--primary); }
+
+        .domain-input {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            padding: 10px 15px;
+            border-radius: 10px;
+            color: white;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        /* Action Buttons */
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-main { background: var(--grad); color: white; }
+        .btn-sub { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        /* Terminal Console */
+        .terminal {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 15px;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            color: #4ade80;
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        /* Admin Overlay */
+        #adminOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .loader-line {
+            position: fixed; top: 0; left: 0; height: 3px;
+            background: var(--accent); width: 0%; z-index: 9999;
+            transition: 0.4s;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="particles-js"></div>
+<div id="loader" class="loader-line"></div>
+
+<!-- Admin View -->
+<div id="adminOverlay">
+    <h1 style="font-size: 3rem; margin-bottom: 20px;">ADMIN PANEL</h1>
+    <div class="glass-card" style="padding: 40px; text-align: center; width: 100%; max-width: 500px;">
+        <p>Total Codes Protected</p>
+        <h2 id="totalCount" style="font-size: 4rem; color: var(--accent);">0</h2>
+        <button class="btn btn-sub" onclick="closeAdmin()" style="margin: 20px auto;">Close Dashboard</button>
+    </div>
+</div>
+
+<div class="app-wrapper">
+    <!-- Header -->
+    <header>
+        <div class="brand">
+            <h2>NEBULA<span style="color:white; font-weight: 300;">PRO</span></h2>
+        </div>
+        <div class="header-actions">
+            <div style="font-weight: 700; font-size: 14px;">
+                <i class="fas fa-gem" style="color: #fbbf24;"></i> <span id="gems">20</span> <span class="d-none">Credits</span>
+            </div>
+            <button class="btn btn-main" style="padding: 8px 15px; font-size: 12px;" onclick="addGems()">REFILL</button>
+            <i class="fas fa-user-shield" style="cursor:pointer; opacity: 0.5;" onclick="openAdmin()"></i>
+        </div>
+    </header>
+
+    <!-- Editors -->
+    <div class="main-grid">
+        <div class="glass-card">
+            <div class="card-header"><span>Source JavaScript</span><span id="inLen">0 chars</span></div>
+            <textarea id="inputCode" placeholder="// Paste your code here..." oninput="updateStats()"></textarea>
+        </div>
+        <div class="glass-card">
+            <div class="card-header"><span>Encrypted Output</span><span id="outLen">0 chars</span></div>
+            <textarea id="outputCode" readonly placeholder="// Protected code will appear here..."></textarea>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-panel">
+        <input type="text" id="domainLock" class="domain-input" placeholder="Lock to domain (e.g. example.com)">
+        
+        <div class="options-group">
+            <label class="check-item"><input type="checkbox" id="c1" checked> Self-Defending</label>
+            <label class="check-item"><input type="checkbox" id="c2" checked> Anti-Debug</label>
+            <label class="check-item"><input type="checkbox" id="c3"> Dead Code</label>
+            <label class="check-item"><input type="checkbox" id="c4" checked> Minify</label>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-sub" onclick="clearAll()">Clear</button>
+            <button class="btn btn-main" id="runBtn" onclick="obfuscate()">
+                <i class="fas fa-bolt"></i> PROTECT CODE
+            </button>
+            <button class="btn btn-sub" onclick="copy()"><i class="fas fa-copy"></i> Copy</button>
+            <button class="btn btn-sub" onclick="download()"><i class="fas fa-download"></i> Save</button>
+        </div>
+
+        <div class="terminal" id="logs">
+            > [SYSTEM]: Nebula Engine v4.0 Active. Ready for encryption.
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Particles
+    particlesJS("particles-js", {
+        "particles": { "number": { "value": 50 }, "color": { "value": "#2979ff" }, "opacity": { "value": 0.2 }, "move": { "speed": 1 } }
+    });
+
+    let state = { gems: 20, total: 0 };
+
+    function log(msg, color = "#4ade80") {
+        const logBox = document.getElementById('logs');
+        const div = document.createElement('div');
+        div.style.color = color;
+        div.innerText = `> [${new Date().toLocaleTimeString()}] ${msg}`;
+        logBox.appendChild(div);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    async function obfuscate() {
+        const input = document.getElementById('inputCode').value;
+        const domain = document.getElementById('domainLock').value.trim();
+        
+        if(!input) return Swal.fire('Error', 'Input code cannot be empty!', 'error');
+        if(state.gems <= 0) return Swal.fire('Out of Credits', 'Please refill your gems.', 'warning');
+
+        const btn = document.getElementById('runBtn');
+        const loader = document.getElementById('loader');
+        
+        btn.disabled = true;
+        loader.style.width = '50%';
+        log('Initializing Nebula encryption...', '#00e5ff');
+
+        setTimeout(() => {
+            try {
+                const result = JavaScriptObfuscator.obfuscate(input, {
+                    compact: document.getElementById('c4').checked,
+                    selfDefending: document.getElementById('c1').checked,
+                    debugProtection: document.getElementById('c2').checked,
+                    deadCodeInjection: document.getElementById('c3').checked,
+                    domainLock: domain ? [domain] : [],
+                    stringArray: true,
+                    rotateStringArray: true,
+                    unicodeEscapeSequence: true
+                }).getObfuscatedCode();
+
+                document.getElementById('outputCode').value = result;
+                state.gems--;
+                state.total++;
+                document.getElementById('gems').innerText = state.gems;
+                updateStats();
+                
+                loader.style.width = '100%';
+                log('Success! Code obfuscated and secured.', '#4ade80');
+                
+                setTimeout(() => loader.style.width = '0%', 400);
+            } catch (e) {
+                log('Encryption Error: ' + e.message, '#ef4444');
+                Swal.fire('Syntax Error', 'Please check your JavaScript code.', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }, 800);
+    }
+
+    function updateStats() {
+        document.getElementById('inLen').innerText = document.getElementById('inputCode').value.length + ' chars';
+        document.getElementById('outLen').innerText = document.getElementById('outputCode').value.length + ' chars';
+    }
+
+    function clearAll() {
+        document.getElementById('inputCode').value = '';
+        document.getElementById('outputCode').value = '';
+        updateStats();
+        log('Workspace cleared.');
+    }
+
+    function copy() {
+        const out = document.getElementById('outputCode');
+        out.select();
+        document.execCommand('copy');
+        log('Code copied to clipboard.', '#00e5ff');
+        Swal.fire({ icon: 'success', title: 'Copied!', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+    }
+
+    function download() {
+        const code = document.getElementById('outputCode').value;
+        if(!code) return;
+        const blob = new Blob([code], {type: 'text/javascript'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'protected_nebula.js';
+        a.click();
+        log('Encrypted file exported.');
+    }
+
+    function addGems() {
+        state.gems += 50;
+        document.getElementById('gems').innerText = state.gems;
+        Swal.fire('Refill Success', '50 Premium credits added.', 'success');
+    }
+
+    async function openAdmin() {
+        const { value: pass } = await Swal.fire({
+            title: 'Admin Access',
+            input: 'password',
+            inputPlaceholder: 'Enter admin password',
+            background: '#05070a',
+            color: '#fff'
+        });
+        if(pass === 'admin123') {
+            document.getElementById('adminOverlay').style.display = 'flex';
+            document.getElementById('totalCount').innerText = state.total;
+        }
+    }
+
+    function closeAdmin() {
+        document.getElementById('adminOverlay').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
