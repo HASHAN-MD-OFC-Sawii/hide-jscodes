@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MR HASHUU | Advanced Code Armor</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator@4.1.0/dist/index.browser.js"></script>
+
+    <style>
+        :root {
+            --bg: #010204;
+            --surface: #0a0b0e;
+            --card: rgba(17, 20, 24, 0.95);
+            --accent: #ff0055;
+            --primary: #ff0055;
+            --secondary: #7000ff;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --grad: linear-gradient(135deg, #ff0055 0%, #7000ff 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { 
+            min-height: 100vh; font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg); color: var(--text-main); overflow-x: hidden;
+        }
+        #particles-js { position: fixed; width: 100%; height: 100%; z-index: 0; }
+
+        .app-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; }
+
+        /* Premium Header */
+        header {
+            background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
+            backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .brand h1 { 
+            font-weight: 800; font-size: 26px; letter-spacing: -1px;
+            background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* Workspace */
+        .workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 1024px) { .workspace { grid-template-columns: 1fr; } }
+
+        .editor-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; height: 450px; }
+        .editor-header { padding: 12px 20px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; }
+
+        textarea { flex: 1; background: transparent; border: none; padding: 20px; color: #fff; font-family: 'Fira Code', monospace; font-size: 13px; resize: none; outline: none; line-height: 1.6; }
+
+        /* Configuration Panel */
+        .config-panel { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 25px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+
+        .opt-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 15px; border-radius: 16px; transition: 0.3s; }
+        .opt-box:hover { border-color: var(--primary); background: rgba(255,0,85,0.05); }
+        .opt-box label { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
+        .opt-box p { font-size: 11px; color: var(--text-dim); margin-top: 5px; margin-left: 28px; }
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); }
+
+        .custom-input { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 12px; border-radius: 12px; color: #fff; width: 100%; margin-top: 10px; outline: none; font-size: 13px; }
+
+        /* Buttons & Footer */
+        .action-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 10px 0; }
+        .btn { padding: 14px 30px; border-radius: 15px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .btn-primary { background: var(--grad); color: white; box-shadow: 0 5px 15px rgba(255, 0, 85, 0.3); }
+        .btn-secondary { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); }
+        .btn:hover { transform: translateY(-3px); filter: brightness(1.2); }
+
+        .console { background: #000; border-radius: 15px; padding: 15px; font-family: 'Fira Code', monospace; font-size: 12px; color: #ff0055; border: 1px solid var(--border); height: 110px; overflow-y: auto; }
+
+        .loader-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--primary); width: 0%; z-index: 1000; transition: 0.3s; box-shadow: 0 0 10px var(--primary); }
+
+        /* Admin Overlay */
+        #adminPanel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div id="particles-js"></div>
+<div class="loader-bar" id="pBar"></div>
+
+<!-- Admin Dashboard -->
+<div id="adminPanel">
+    <h1 style="font-size: 4rem; color: var(--primary); margin-bottom: 10px;">MR HASHUU ADMIN</h1>
+    <div class="opt-box" style="width: 300px; padding: 30px;">
+        <p>Total Conversions</p>
+        <h2 id="totalOps" style="font-size: 3rem;">0</h2>
+    </div>
+    <button class="btn btn-secondary" style="margin-top: 20px;" onclick="closeAdmin()">Return to Dashboard</button>
+</div>
+
+<div class="app-container">
+    <header>
+        <div class="brand">
+            <h1>MR HASHUU <span style="font-weight: 300; font-size: 12px; color: #fff;">CODE ARMOR V5.5</span></h1>
+        </div>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div style="font-size: 14px; font-weight: 700;"><i class="fas fa-bolt" style="color: #fbbf24;"></i> <span id="credits">100</span> Energy</div>
+            <button class="btn btn-primary" style="padding: 8px 16px; font-size: 12px;" onclick="refill()">REFILL</button>
+            <i class="fas fa-fingerprint" style="cursor: pointer; color: var(--primary);" onclick="openAdmin()"></i>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <div class="editor-card">
+            <div class="editor-header"><span>Input JavaScript</span><span id="inSize">0 chars</span></div>
+            <textarea id="inputCode" oninput="stats()" placeholder="// Paste your source code..."></textarea>
+        </div>
+        <div class="editor-card">
+            <div class="editor-header"><span>Encrypted Output</span><span id="outSize">0 chars</span></div>
+            <textarea id="outputCode" readonly placeholder="// Protected code..."></textarea>
+        </div>
+    </div>
+
+    <div class="config-panel">
+        <div class="opt-box">
+            <label><input type="checkbox" id="cFlow" checked> Control Flow</label>
+            <p>Flatten code logic structure.</p>
+        </div>
+        <div class="opt-box">
+            <label><input type="checkbox" id="sArray" checked> String Array</label>
+            <p>Hide strings in central array.</p>
+        </div>
+        <div class="opt-box">
+            <label><input type="checkbox" id="b64" checked> Base64 Encode</label>
+            <p>Encrypt strings to Base64.</p>
+        </div>
+        <div class="opt-box">
+            <label><input type="checkbox" id="math" checked> Num Logic</label>
+            <p>Numbers to math expressions.</p>
+        </div>
+        <div class="opt-box">
+            <label><input type="checkbox" id="anti" checked> Anti-Debugger</label>
+            <p>Block F12 / DevTools.</p>
+        </div>
+        <div class="opt-box">
+            <label><input type="checkbox" id="self" checked> Self Defending</label>
+            <p>Break if code is formatted.</p>
+        </div>
+        <div class="opt-box" style="grid-column: span 1;">
+            <label>Domain Lock</label>
+            <input type="text" id="domain" class="custom-input" placeholder="e.g. hash.com">
+        </div>
+        <div class="opt-box" style="grid-column: span 1;">
+            <label>Variable Name Strategy</label>
+            <select id="rename" class="custom-input">
+                <option value="hexadecimal">Hexadecimal</option>
+                <option value="mangled">Short Mangle</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <button class="btn btn-secondary" onclick="clearAll()">Reset</button>
+        <button class="btn btn-primary" id="runBtn" onclick="encryptCode()">
+            <i class="fas fa-shield-alt"></i> ENCRYPT WITH MR HASHUU
+        </button>
+        <button class="btn btn-secondary" onclick="copy()"><i class="fas fa-copy"></i> Copy</button>
+        <button class="btn btn-secondary" onclick="download()"><i class="fas fa-download"></i> Save .js</button>
+    </div>
+
+    <div class="console" id="logs">
+        > MR HASHUU Core Initialized... Standing by.
+    </div>
+</div>
+
+<script>
+    particlesJS("particles-js", { "particles": { "number": { "value": 60 }, "color": { "value": "#ff0055" }, "opacity": { "value": 0.2 }, "move": { "speed": 1.5 } } });
+
+    let state = { energy: 100, ops: 0 };
+
+    function log(msg, color = "#ff0055") {
+        const c = document.getElementById('logs');
+        const d = document.createElement('div');
+        d.style.color = color;
+        d.innerHTML = `> [${new Date().toLocaleTimeString()}] ${msg}`;
+        c.appendChild(d);
+        c.scrollTop = c.scrollHeight;
+    }
+
+    async function encryptCode() {
+        const input = document.getElementById('inputCode').value;
+        if(!input) return Swal.fire('Wait!', 'Please enter some code.', 'warning');
+        if(state.energy <= 0) return Swal.fire('Out of Energy', 'Refill your energy!', 'error');
+
+        const btn = document.getElementById('runBtn');
+        const pBar = document.getElementById('pBar');
+        
+        btn.disabled = true;
+        pBar.style.width = '40%';
+        log('MR HASHUU Engine Starting...', '#fff');
+
+        setTimeout(() => {
+            try {
+                const res = JavaScriptObfuscator.obfuscate(input, {
+                    compact: true,
+                    controlFlowFlattening: document.getElementById('cFlow').checked,
+                    stringArray: document.getElementById('sArray').checked,
+                    stringArrayEncoding: document.getElementById('b64').checked ? ['base64'] : [],
+                    numbersToExpressions: document.getElementById('math').checked,
+                    debugProtection: document.getElementById('anti').checked,
+                    selfDefending: document.getElementById('self').checked,
+                    identifierNamesGenerator: document.getElementById('rename').value,
+                    domainLock: document.getElementById('domain').value ? [document.getElementById('domain').value] : []
+                }).getObfuscatedCode();
+
+                document.getElementById('outputCode').value = res;
+                state.energy -= 10;
+                state.ops++;
+                document.getElementById('credits').innerText = state.energy;
+                stats();
+                
+                pBar.style.width = '100%';
+                log('SUCCESS: Code armored by MR HASHUU.', '#4ade80');
+                setTimeout(() => pBar.style.width = '0%', 500);
+            } catch (e) {
+                log('FATAL ERROR: ' + e.message, '#ef4444');
+                Swal.fire('Error', 'Check your JavaScript syntax!', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }, 1000);
+    }
+
+    function stats() {
+        document.getElementById('inSize').innerText = document.getElementById('inputCode').value.length + ' chars';
+        document.getElementById('outSize').innerText = document.getElementById('outputCode').value.length + ' chars';
+    }
+
+    function clearAll() {
+        document.getElementById('inputCode').value = '';
+        document.getElementById('outputCode').value = '';
+        stats(); log('Workspace cleared.');
+    }
+
+    function copy() {
+        const o = document.getElementById('outputCode');
+        o.select(); document.execCommand('copy');
+        log('Copied to clipboard.');
+    }
+
+    function download() {
+        const code = document.getElementById('outputCode').value;
+        if(!code) return;
+        const blob = new Blob([code], {type: 'text/javascript'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'mr_hashuu_protected.js';
+        a.click();
+    }
+
+    function refill() { state.energy += 100; document.getElementById('credits').innerText = state.energy; log('Energy Refilled.'); }
+
+    async function openAdmin() {
+        const { value: pass } = await Swal.fire({ title: 'Admin Password', input: 'password', background: '#0a0b0e', color: '#fff' });
+        if(pass === 'hashuu123') {
+            document.getElementById('adminPanel').style.display = 'flex';
+            document.getElementById('totalOps').innerText = state.ops;
+        } else {
+            Swal.fire('Access Denied', 'Incorrect password!', 'error');
+        }
+    }
+
+    function closeAdmin() { document.getElementById('adminPanel').style.display = 'none'; }
+</script>
+</body>
+</html>
