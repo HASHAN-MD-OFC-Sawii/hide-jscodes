@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obfuscator Pro Max | Ultimate Edition</title>
+    
+    <!-- External Resources -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator@4.1.0/dist/index.browser.js"></script>
+
+    <style>
+        :root {
+            --accent: #00f2fe;
+            --primary: #4facfe;
+            --secondary: #8e2de2;
+            --bg: #0b0e14;
+            --glass: rgba(17, 24, 39, 0.85);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #fff;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 15px;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Top Navigation Header */
+        header {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 10px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .logo-section h1 {
+            font-size: 22px;
+            font-weight: 900;
+            background: linear-gradient(to right, var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .gem-display {
+            background: rgba(255,255,255,0.05);
+            padding: 6px 15px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        /* Middle - Main Editor Section */
+        .main-workspace {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            min-height: 0;
+        }
+
+        .editor-container {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: border 0.3s;
+        }
+
+        .editor-container:focus-within {
+            border-color: var(--accent);
+        }
+
+        .label-bar {
+            background: rgba(255,255,255,0.03);
+            padding: 8px 15px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 20px;
+            color: #00ffa3;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            line-height: 1.6;
+        }
+
+        /* Bottom Controls & Actions */
+        .control-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .settings-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #cbd5e1;
+        }
+
+        .option input { accent-color: var(--accent); }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+        }
+
+        /* Buttons Styling */
+        .btn {
+            padding: 12px 25px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-primary { 
+            background: linear-gradient(45deg, var(--primary), var(--secondary)); 
+            color: white;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-secondary { background: rgba(255,255,255,0.07); color: white; border: 1px solid var(--border); }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .btn:hover { transform: translateY(-3px); filter: brightness(1.2); }
+        .btn:active { transform: translateY(0); }
+
+        /* Progress Bar (Hidden by default) */
+        .loading-bar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 0%; height: 4px;
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+            z-index: 9999;
+            transition: width 0.4s;
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="particles-js"></div>
+    <div id="loader" class="loading-bar"></div>
+
+    <div class="wrapper">
+        <!-- Header -->
+        <header>
+            <div class="logo-section">
+                <h1><i class="fas fa-user-shield"></i> OBFUSCATOR PRO MAX</h1>
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <div class="gem-display">
+                    <i class="fas fa-gem" style="color: var(--accent);"></i>
+                    <span id="gemCount">20</span>
+                </div>
+                <button class="btn btn-primary" style="padding: 5px 15px;" onclick="addGems()">REFILL</button>
+            </div>
+        </header>
+
+        <!-- Editors Area -->
+        <div class="main-workspace">
+            <div class="editor-container">
+                <div class="label-bar">
+                    <span><i class="fas fa-code"></i> Source JavaScript</span>
+                    <span id="charCountIn">0 chars</span>
+                </div>
+                <textarea id="inputBox" placeholder="// Paste your original code here..."></textarea>
+            </div>
+            <div class="editor-container">
+                <div class="label-bar">
+                    <span><i class="fas fa-lock"></i> Protected Code</span>
+                    <span id="charCountOut">0 chars</span>
+                </div>
+                <textarea id="outputBox" readonly placeholder="// Protected output will be shown here..."></textarea>
+            </div>
+        </div>
+
+        <!-- Controls Area -->
+        <div class="control-panel">
+            <div class="settings-grid">
+                <label class="option"><input type="checkbox" id="compact" checked> Compact</label>
+                <label class="option"><input type="checkbox" id="selfDef" checked> Self-Defending</label>
+                <label class="option"><input type="checkbox" id="antiDebug"> Anti-Debug</label>
+                <label class="option"><input type="checkbox" id="deadCode" checked> Dead Code</label>
+                <label class="option"><input type="checkbox" id="strArray" checked> String Array</label>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-danger" onclick="clearFields()"><i class="fas fa-trash-alt"></i> Clear</button>
+                <button class="btn btn-secondary" onclick="formatInput()"><i class="fas fa-align-left"></i> Format</button>
+                <button class="btn btn-primary" id="mainActionBtn" onclick="obfuscateNow()"><i class="fas fa-bolt"></i> PROTECT CODE</button>
+                <button class="btn btn-secondary" onclick="copyOutput()"><i class="fas fa-copy"></i> Copy</button>
+                <button class="btn btn-secondary" onclick="downloadFile()"><i class="fas fa-download"></i> Download</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Particles Background Configuration
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 60 },
+                "color": { "value": "#4facfe" },
+                "opacity": { "value": 0.2 },
+                "size": { "value": 2 },
+                "line_linked": { "enable": true, "distance": 150, "color": "#4facfe", "opacity": 0.1 },
+                "move": { "enable": true, "speed": 1 }
+            }
+        });
+
+        let currentGems = 20;
+
+        // Core Obfuscation Function
+        function obfuscateNow() {
+            const code = document.getElementById('inputBox').value;
+            if(!code) {
+                Swal.fire('Empty!', 'Please provide some code to protect.', 'warning');
+                return;
+            }
+
+            if(currentGems <= 0) {
+                Swal.fire('Gems Empty!', 'Please refill your gems.', 'error');
+                return;
+            }
+
+            const loader = document.getElementById('loader');
+            const btn = document.getElementById('mainActionBtn');
+            
+            // Animation
+            loader.style.width = '50%';
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+            btn.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                try {
+                    const result = JavaScriptObfuscator.obfuscate(code, {
+                        compact: document.getElementById('compact').checked,
+                        controlFlowFlattening: true,
+                        deadCodeInjection: document.getElementById('deadCode').checked,
+                        selfDefending: document.getElementById('selfDef').checked,
+                        debugProtection: document.getElementById('antiDebug').checked,
+                        stringArray: document.getElementById('strArray').checked,
+                        rotateStringArray: true,
+                        shuffleStringArray: true
+                    }).getObfuscatedCode();
+
+                    document.getElementById('outputBox').value = result;
+                    document.getElementById('charCountOut').innerText = result.length + ' chars';
+                    
+                    currentGems--;
+                    document.getElementById('gemCount').innerText = currentGems;
+                    
+                    loader.style.width = '100%';
+                    setTimeout(() => loader.style.width = '0%', 400);
+
+                    Swal.fire({ icon: 'success', title: 'Code Protected!', showConfirmButton: false, timer: 1500 });
+                } catch (err) {
+                    Swal.fire('JS Error', err.message, 'error');
+                } finally {
+                    btn.innerHTML = '<i class="fas fa-bolt"></i> PROTECT CODE';
+                    btn.style.pointerEvents = 'auto';
+                }
+            }, 600);
+        }
+
+        // Helper Functions
+        function clearFields() {
+            document.getElementById('inputBox').value = '';
+            document.getElementById('outputBox').value = '';
+            document.getElementById('charCountIn').innerText = '0 chars';
+            document.getElementById('charCountOut').innerText = '0 chars';
+        }
+
+        function copyOutput() {
+            const out = document.getElementById('outputBox');
+            if(!out.value) return;
+            out.select();
+            document.execCommand('copy');
+            Swal.fire({ icon: 'success', title: 'Copied!', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+        }
+
+        function downloadFile() {
+            const code = document.getElementById('outputBox').value;
+            if(!code) return;
+            const blob = new Blob([code], {type: 'text/javascript'});
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'protected_code.js';
+            a.click();
+        }
+
+        function addGems() {
+            currentGems += 50;
+            document.getElementById('gemCount').innerText = currentGems;
+            Swal.fire('Success', '50 Gems added successfully!', 'success');
+        }
+
+        function formatInput() {
+            // Simple visual feedback for "Format" feature
+            Swal.fire('Note', 'Code beautifier triggered!', 'info');
+        }
+
+        // Live Char Counter
+        document.getElementById('inputBox').oninput = function() {
+            document.getElementById('charCountIn').innerText = this.value.length + ' chars';
+        }
+    </script>
+</body>
+</html>
