@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obfuscator Pro Max | Ultra Security Suite</title>
+    
+    <!-- External Assets -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator@4.1.0/dist/index.browser.js"></script>
+
+    <style>
+        :root {
+            --accent: #00f2fe;
+            --primary: #4facfe;
+            --secondary: #8e2de2;
+            --bg: #080a0f;
+            --glass: rgba(17, 24, 39, 0.9);
+            --border: rgba(255, 255, 255, 0.08);
+            --neon: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; }
+        #particles-js { position: fixed; width: 100%; height: 100%; z-index: -1; }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 15px;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Glass Header */
+        header {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 10px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--neon);
+        }
+
+        .logo h1 {
+            font-size: 22px;
+            font-weight: 900;
+            background: linear-gradient(to right, var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Workspace Grid */
+        .workspace {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .editor-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: rgba(255,255,255,0.03);
+            padding: 8px 15px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 15px;
+            color: #00ffa3;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            resize: none;
+            outline: none;
+        }
+
+        /* Console Terminal */
+        .console {
+            height: 120px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
+            overflow-y: auto;
+            color: #888;
+        }
+        .console-log { margin-bottom: 4px; }
+        .log-success { color: #10b981; }
+        .log-info { color: var(--primary); }
+
+        /* Control Panel */
+        .controls {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .options-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 11px;
+        }
+
+        .domain-lock-input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 5px 12px;
+            color: #fff;
+            font-size: 12px;
+            width: 250px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            font-size: 12px;
+        }
+        .btn-main { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .btn-sub { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; box-shadow: var(--neon); }
+
+        .loading-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); width: 0%; z-index: 10000; transition: 0.3s; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="particles-js"></div>
+<div id="loader" class="loading-bar"></div>
+
+<div class="app-container">
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <h1><i class="fas fa-user-secret"></i> OBFUSCATOR <span style="font-weight:300">PRO MAX</span></h1>
+        </div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div style="font-size: 13px; font-weight: 700;">
+                <i class="fas fa-gem" style="color: var(--accent);"></i> <span id="gems">20</span>
+            </div>
+            <button class="btn btn-main" style="padding: 5px 12px;" onclick="addGems()">REFILL</button>
+            <i class="fas fa-shield-alt" style="cursor:pointer; opacity:0.5" onclick="toggleAdmin()"></i>
+        </div>
+    </header>
+
+    <!-- Workspace -->
+    <div class="workspace" id="userMode">
+        <div class="editor-card">
+            <div class="card-header">
+                <span><i class="fas fa-file-code"></i> SOURCE CODE</span>
+                <span id="inSize">0 chars</span>
+            </div>
+            <textarea id="inputBox" oninput="updateStats()" placeholder="// Paste your JavaScript code here..."></textarea>
+            <div style="padding: 10px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.2);">
+                <input type="text" id="domainLock" class="domain-lock-input" placeholder="Lock to domain (e.g. mysite.com)">
+            </div>
+        </div>
+        <div class="editor-card">
+            <div class="card-header">
+                <span><i class="fas fa-lock"></i> PROTECTED OUTPUT</span>
+                <span id="outSize">0 chars</span>
+            </div>
+            <textarea id="outputBox" readonly placeholder="// Obfuscated code will appear here..."></textarea>
+            <div class="console" id="console">
+                <div class="console-log">> System ready... Waiting for input.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="workspace hidden" id="adminMode">
+        <div class="editor-card" style="justify-content: center; align-items: center;">
+            <h2 style="color: var(--accent);">ADMIN CONTROLS</h2>
+            <p style="margin: 15px 0;">Total System Usage: <span id="usageStat" style="font-size: 40px; font-weight: 900;">0</span></p>
+            <button class="btn btn-sub" onclick="toggleAdmin()">EXIT ADMIN</button>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="options-row">
+            <label><input type="checkbox" id="optSelf" checked> Self-Defending</label>
+            <label><input type="checkbox" id="optDebug" checked> Anti-Debug</label>
+            <label><input type="checkbox" id="optDead" checked> Dead Code</label>
+            <label><input type="checkbox" id="optCompact" checked> Minify</label>
+            <label><input type="checkbox" id="optRename" checked> Rename Globals</label>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-trash"></i> CLEAR</button>
+            <button class="btn btn-sub" onclick="document.getElementById('fileIn').click()"><i class="fas fa-upload"></i> UPLOAD</button>
+            <input type="file" id="fileIn" hidden onchange="handleFile(this.files[0])">
+            <button class="btn btn-main" id="runBtn" onclick="obfuscate()"><i class="fas fa-bolt"></i> PROTECT CODE</button>
+            <button class="btn btn-sub" onclick="copy()"><i class="fas fa-copy"></i> COPY</button>
+            <button class="btn btn-sub" onclick="download()"><i class="fas fa-download"></i> DOWNLOAD</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Particle background
+    particlesJS("particles-js", {
+        "particles": { "number": { "value": 40 }, "color": { "value": "#00f2fe" }, "opacity": { "value": 0.2 }, "move": { "speed": 0.8 } }
+    });
+
+    let gems = 20;
+    let totalUsage = 0;
+
+    function log(msg, type = '') {
+        const consoleEl = document.getElementById('console');
+        const div = document.createElement('div');
+        div.className = `console-log ${type ? 'log-' + type : ''}`;
+        div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        consoleEl.appendChild(div);
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    async function obfuscate() {
+        const input = document.getElementById('inputBox').value;
+        const domain = document.getElementById('domainLock').value.trim();
+        
+        if(!input) return Swal.fire('Error', 'Paste some code first!', 'error');
+        if(gems <= 0) return Swal.fire('No Gems', 'Refill to continue.', 'warning');
+
+        const btn = document.getElementById('runBtn');
+        const loader = document.getElementById('loader');
+        
+        btn.disabled = true;
+        loader.style.width = '40%';
+        log('Starting obfuscation process...', 'info');
+
+        setTimeout(() => {
+            try {
+                log('Analyzing source tree...', 'info');
+                log('Injecting anti-tamper protocols...', 'info');
+                
+                const options = {
+                    compact: document.getElementById('optCompact').checked,
+                    controlFlowFlattening: true,
+                    deadCodeInjection: document.getElementById('optDead').checked,
+                    debugProtection: document.getElementById('optDebug').checked,
+                    selfDefending: document.getElementById('optSelf').checked,
+                    renameGlobals: document.getElementById('optRename').checked,
+                    stringArray: true,
+                    rotateStringArray: true,
+                    shuffleStringArray: true,
+                    unicodeEscapeSequence: true
+                };
+
+                if(domain) {
+                    options.domainLock = [domain];
+                    log(`Locking code to domain: ${domain}`, 'info');
+                }
+
+                const result = JavaScriptObfuscator.obfuscate(input, options).getObfuscatedCode();
+                
+                document.getElementById('outputBox').value = result;
+                gems--;
+                totalUsage++;
+                document.getElementById('gems').innerText = gems;
+                updateStats();
+                
+                loader.style.width = '100%';
+                log('Success! Code fully encrypted.', 'log-success');
+                Swal.fire({ icon: 'success', title: 'Protected!', timer: 1000, showConfirmButton: false });
+
+            } catch (e) {
+                log('Error: ' + e.message, 'danger');
+                Swal.fire('Failed', e.message, 'error');
+            } finally {
+                setTimeout(() => loader.style.width = '0%', 400);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bolt"></i> PROTECT CODE';
+            }
+        }, 800);
+    }
+
+    function handleFile(file) {
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('inputBox').value = e.target.result;
+                log(`File loaded: ${file.name}`, 'info');
+                updateStats();
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    function updateStats() {
+        document.getElementById('inSize').innerText = document.getElementById('inputBox').value.length + ' chars';
+        document.getElementById('outSize').innerText = document.getElementById('outputBox').value.length + ' chars';
+    }
+
+    function clearAll() {
+        document.getElementById('inputBox').value = '';
+        document.getElementById('outputBox').value = '';
+        log('Workspace cleared.', 'info');
+        updateStats();
+    }
+
+    function copy() {
+        const out = document.getElementById('outputBox');
+        out.select();
+        document.execCommand('copy');
+        log('Output copied to clipboard.', 'log-success');
+    }
+
+    function download() {
+        const code = document.getElementById('outputBox').value;
+        if(!code) return;
+        const blob = new Blob([code], {type: 'text/javascript'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'obfuscated_v2.js';
+        a.click();
+        log('File downloaded.', 'info');
+    }
+
+    function addGems() {
+        gems += 50;
+        document.getElementById('gems').innerText = gems;
+        Swal.fire('Success', '50 Gems added!', 'success');
+        log('Account refilled with 50 gems.', 'log-success');
+    }
+
+    async function toggleAdmin() {
+        const userMode = document.getElementById('userMode');
+        const adminMode = document.getElementById('adminMode');
+        
+        if(adminMode.classList.contains('hidden')) {
+            const { value: pass } = await Swal.fire({ title: 'Admin Login', input: 'password', background: '#080a0f', color: '#fff' });
+            if(pass === 'admin123') {
+                userMode.classList.add('hidden');
+                adminMode.classList.remove('hidden');
+                document.getElementById('usageStat').innerText = totalUsage;
+            }
+        } else {
+            adminMode.classList.add('hidden');
+            userMode.classList.remove('hidden');
+        }
+    }
+</script>
+</body>
+</html>
