@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obfuscator Pro Max | Ultimate SaaS Edition</title>
+    
+    <!-- Fonts & Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator@4.1.0/dist/index.browser.js"></script>
+
+    <style>
+        :root {
+            --accent: #00f2fe;
+            --primary: #4facfe;
+            --secondary: #8e2de2;
+            --bg: #030712;
+            --glass: rgba(17, 24, 39, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #particles-js { position: fixed; width: 100%; height: 100%; z-index: -1; }
+
+        .container { max-width: 1300px; margin: 0 auto; padding: 20px; position: relative; }
+
+        /* Header & Glassmorphism */
+        .glass-header {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .logo-box h1 {
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(to right, var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Gem Card & Stats */
+        .gem-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 18px;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Drag & Drop Zone */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            background: rgba(255,255,255,0.02);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 25px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .drop-zone:hover, .drop-zone.active {
+            border-color: var(--accent);
+            background: rgba(0, 242, 254, 0.05);
+        }
+
+        /* Workspace Grid */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        @media (max-width: 968px) { .workspace { grid-template-columns: 1fr; } }
+
+        .editor-box {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            background: rgba(255,255,255,0.03);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        textarea {
+            width: 100%;
+            height: 420px;
+            background: transparent;
+            border: none;
+            padding: 15px;
+            color: #10b981;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            resize: none;
+        }
+
+        /* Controls */
+        .settings-bar {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            background: rgba(255,255,255,0.05);
+            padding: 8px 15px;
+            border-radius: 12px;
+            font-size: 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        /* Buttons */
+        .btn-glow {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 40px;
+            border-radius: 100px;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+            transition: 0.3s;
+        }
+        .btn-glow:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(79, 172, 254, 0.5); }
+
+        /* Progress Bar */
+        .progress-wrap {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            display: none;
+        }
+        .progress-fill { width: 0%; height: 100%; background: var(--accent); box-shadow: 0 0 15px var(--accent); transition: 0.2s; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="particles-js"></div>
+    <div class="progress-wrap" id="loader"><div class="progress-fill" id="fill"></div></div>
+
+    <div class="container">
+        <!-- Main Header -->
+        <header class="glass-header">
+            <div class="logo-box">
+                <h1><i class="fas fa-shield-halved"></i> OBFUSCATOR PRO</h1>
+                <p style="font-size: 10px; color: #64748b; letter-spacing: 1px;">MILITARY-GRADE PROTECTION</p>
+            </div>
+            
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div class="gem-card">
+                    <i class="fas fa-gem" style="color: var(--accent);"></i>
+                    <span id="gemCount" style="font-weight: 800;">20</span>
+                </div>
+                <button class="btn-glow" style="padding: 10px 20px; font-size: 12px;" onclick="buyGems()">BUY GEMS</button>
+                <i class="fas fa-cog" style="cursor:pointer; color: #64748b;" onclick="openAdmin()"></i>
+            </div>
+        </header>
+
+        <!-- User View -->
+        <div id="userUI">
+            <!-- Drag & Drop Zone -->
+            <div class="drop-zone" id="dropZone">
+                <input type="file" id="fileIn" hidden accept=".js">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 40px; margin-bottom: 10px; color: var(--accent);"></i>
+                <p style="font-weight: 600;">Drag & Drop JS file here or <span style="color: var(--accent);">Click to Browse</span></p>
+            </div>
+
+            <!-- Configuration Chips -->
+            <div class="settings-bar">
+                <label class="chip"><input type="checkbox" id="selfDef" checked> Self Defend</label>
+                <label class="chip"><input type="checkbox" id="antiDebug" checked> Anti-Debug</label>
+                <label class="chip"><input type="checkbox" id="deadCode" checked> Dead Code</label>
+                <label class="chip"><input type="checkbox" id="stringRot" checked> String Rotation</label>
+            </div>
+
+            <!-- Workspace -->
+            <div class="workspace">
+                <div class="editor-box">
+                    <div class="editor-header">
+                        <span><i class="fas fa-code"></i> Source Code</span>
+                        <span id="inStats">0 chars</span>
+                    </div>
+                    <textarea id="inputCode" placeholder="// Paste your JavaScript here..."></textarea>
+                </div>
+                <div class="editor-box">
+                    <div class="editor-header">
+                        <span><i class="fas fa-lock"></i> Obfuscated Result</span>
+                        <div style="display:flex; gap:12px;">
+                            <i class="fas fa-copy" style="cursor:pointer; color:var(--accent)" onclick="copyCode()"></i>
+                            <i class="fas fa-download" style="cursor:pointer" onclick="downloadCode()"></i>
+                        </div>
+                    </div>
+                    <textarea id="outputCode" readonly placeholder="// Result will be generated here..."></textarea>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="btn-glow" id="runBtn" onclick="runObfuscation()">
+                    <i class="fas fa-bolt"></i> PROTECT MY CODE
+                </button>
+            </div>
+        </div>
+
+        <!-- Admin View (Simple Simulation) -->
+        <div id="adminUI" class="hidden">
+            <div class="glass-header">
+                <h2>Admin Control</h2>
+                <button onclick="closeAdmin()" class="btn-glow" style="padding: 10px 20px;">BACK</button>
+            </div>
+            <div class="workspace">
+                <div class="editor-box" style="padding:20px; text-align:center;">
+                    <h3>Total App Uses</h3>
+                    <h1 id="totalUses" style="font-size: 60px; color: var(--accent);">0</h1>
+                </div>
+                <div class="editor-box" style="padding:20px; text-align:center;">
+                    <h3>Add Bonus Gems</h3>
+                    <input type="number" id="bonusAmt" style="padding:10px; border-radius:10px; border:none; margin:10px 0;" placeholder="Amount">
+                    <button class="btn-glow" onclick="adminAddGems()">ADD GEMS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Init Particles
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 60 },
+                "color": { "value": "#4facfe" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.3 },
+                "size": { "value": 2 },
+                "line_linked": { "enable": true, "distance": 150, "color": "#4facfe", "opacity": 0.2 },
+                "move": { "enable": true, "speed": 1 }
+            }
+        });
+
+        // App State
+        let state = {
+            gems: parseInt(localStorage.getItem('obf_gems')) || 20,
+            totalUses: parseInt(localStorage.getItem('obf_total')) || 0
+        };
+
+        function updateGemDisplay() {
+            document.getElementById('gemCount').innerText = state.gems;
+            localStorage.setItem('obf_gems', state.gems);
+        }
+
+        // File Drag & Drop Logic
+        const dropZone = document.getElementById('dropZone');
+        const fileIn = document.getElementById('fileIn');
+        
+        dropZone.onclick = () => fileIn.click();
+        fileIn.onchange = (e) => handleFile(e.target.files[0]);
+        
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('active'); };
+        dropZone.ondragleave = () => dropZone.classList.remove('active');
+        dropZone.ondrop = (e) => { 
+            e.preventDefault(); 
+            dropZone.classList.remove('active'); 
+            handleFile(e.dataTransfer.files[0]); 
+        };
+
+        function handleFile(file) {
+            if (file && file.name.endsWith('.js')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('inputCode').value = e.target.result;
+                    Swal.fire('Loaded!', file.name + ' ready to protect.', 'success');
+                };
+                reader.readAsText(file);
+            } else {
+                Swal.fire('Error', 'Only .js files allowed!', 'error');
+            }
+        }
+
+        // Main Obfuscation Logic
+        async function runObfuscation() {
+            const input = document.getElementById('inputCode').value;
+            if(!input) return Swal.fire('No Code', 'Please paste or upload code.', 'warning');
+            if(state.gems <= 0) return Swal.fire('No Gems', 'Please buy or wait for refill.', 'error');
+
+            const loader = document.getElementById('loader');
+            const fill = document.getElementById('fill');
+            const btn = document.getElementById('runBtn');
+
+            // UI Feedback
+            loader.style.display = 'block';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROTECTING...';
+
+            let progress = 0;
+            const anim = setInterval(() => {
+                progress += 10;
+                fill.style.width = progress + '%';
+                if(progress >= 100) {
+                    clearInterval(anim);
+                    finalizeObfuscation(input);
+                }
+            }, 50);
+        }
+
+        function finalizeObfuscation(input) {
+            try {
+                const obfuscatedCode = JavaScriptObfuscator.obfuscate(input, {
+                    compact: true,
+                    controlFlowFlattening: true,
+                    deadCodeInjection: document.getElementById('deadCode').checked,
+                    debugProtection: document.getElementById('antiDebug').checked,
+                    selfDefending: document.getElementById('selfDef').checked,
+                    stringArray: true,
+                    rotateStringArray: document.getElementById('stringRot').checked,
+                    unicodeEscapeSequence: true
+                }).getObfuscatedCode();
+
+                document.getElementById('outputCode').value = obfuscatedCode;
+                
+                state.gems--;
+                state.totalUses++;
+                localStorage.setItem('obf_total', state.totalUses);
+                updateGemDisplay();
+
+                // UI Cleanup
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('fill').style.width = '0%';
+                document.getElementById('runBtn').disabled = false;
+                document.getElementById('runBtn').innerHTML = '<i class="fas fa-bolt"></i> PROTECT MY CODE';
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Encrypted!',
+                    text: 'Your code is now safe from prying eyes.',
+                    background: '#0f172a',
+                    color: '#fff'
+                });
+
+            } catch (err) {
+                Swal.fire('Obfuscation Failed', err.message, 'error');
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('runBtn').disabled = false;
+            }
+        }
+
+        // Admin & Utility Functions
+        async function openAdmin() {
+            const { value: pass } = await Swal.fire({
+                title: 'Admin Login',
+                input: 'password',
+                inputPlaceholder: 'Password',
+                background: '#0f172a',
+                color: '#fff'
+            });
+            if(pass === 'admin123') {
+                document.getElementById('userUI').classList.add('hidden');
+                document.getElementById('adminUI').classList.remove('hidden');
+                document.getElementById('totalUses').innerText = state.totalUses;
+            }
+        }
+
+        function closeAdmin() {
+            document.getElementById('adminUI').classList.add('hidden');
+            document.getElementById('userUI').classList.remove('hidden');
+        }
+
+        function adminAddGems() {
+            const amt = parseInt(document.getElementById('bonusAmt').value);
+            if(amt > 0) {
+                state.gems += amt;
+                updateGemDisplay();
+                Swal.fire('Admin', amt + ' Gems Added!', 'success');
+            }
+        }
+
+        function copyCode() {
+            const out = document.getElementById('outputCode');
+            out.select();
+            document.execCommand('copy');
+            Swal.fire({ icon:'success', title:'Copied!', toast:true, position:'top-end', showConfirmButton:false, timer:2000 });
+        }
+
+        function downloadCode() {
+            const code = document.getElementById('outputCode').value;
+            if(!code) return;
+            const blob = new Blob([code], {type: 'text/javascript'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'protected_script.js';
+            a.click();
+        }
+
+        function buyGems() {
+            Swal.fire({
+                title: 'Test Store',
+                text: 'Add 50 gems for free in this demo?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, please!'
+            }).then(res => {
+                if(res.isConfirmed) {
+                    state.gems += 50;
+                    updateGemDisplay();
+                }
+            });
+        }
+
+        // Input counter
+        document.getElementById('inputCode').addEventListener('input', (e) => {
+            document.getElementById('inStats').innerText = e.target.value.length + ' chars';
+        });
+
+        // Initialize
+        updateGemDisplay();
+    </script>
+</body>
+</html>
